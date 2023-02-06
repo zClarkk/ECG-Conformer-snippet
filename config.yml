@@ -1,0 +1,73 @@
+signal_config:
+  samples: 5000 #was 4000
+  lead: II # was I
+
+class_config:
+  default: 0
+  rhythms:
+    AF: 0     #Vorhofflattern
+    AFIB: 1   #Vorhofflimmern
+    SA: 2     #Sinusarrhytmie
+    SB: 3     #Sinus Bradykardie
+    SR: 4     #Sinusrhytmus
+    ST: 5     #Sinus Tachykardie
+    SVT: 6    #Supraventikuläre Tachykardie
+
+model_config:
+  name: conformer
+  subsampling:
+    type: conv2d
+    filters: 144 #was 144
+    kernel_size: 16 #maybe 17 #was 3 at the very start
+    strides: 16 #was 64 #was 2 at the very start
+  positional_encoding: sinusoid_concat
+  dmodel: 144 #was 144
+  num_blocks: 16
+  head_size: 36 # was 36
+  num_heads: 4 #maybe 16 was 4
+  mha_type: relmha #was relmha
+  kernel_size: 32
+  fc_factor: 0.5
+  dropout: 0.1
+  num_classes: 7
+  activation: softmax
+
+train_dataset_config:
+  data_paths:
+    - /home/erguen/ECGDataDenoised
+  diagnostics_paths:
+    - /home/erguen/Diagnostics.xlsx
+  header: True
+  cache: True
+  shuffle: True
+  buffer_size: 100
+  drop_remainder: False
+
+loss_config:
+  from_logits: False
+  label_smoothing: 0
+  gamma: 2.0
+
+optimizer_config:
+  warmup_steps: 40000 #was 40.000 or 1
+  beta1: 0.9
+  beta2: 0.98
+  epsilon: 1e-9 # try 1e-08 was 1e-9
+
+learning_config:
+  run_id: 1
+  batch_size: 128
+  num_epochs: 1
+  checkpoint:
+    filepath: /home/erguen/tf-arrhythmia-detection-main/tfcad/conformer/checkpoints
+    save_best_only: False
+    save_weights_only: False
+    save_freq: epoch
+  tensorboard:
+    log_dir: /home/erguen/tf-arrhythmia-detection-main/tfcad/conformer/tensorboard
+    histogram_freq: 1
+    write_graph: True
+    write_images: True
+    update_freq: epoch
+    profile_batch: 2
+  result_dir: /home/erguen/tf-arrhythmia-detection-main/examples/conformer/result
